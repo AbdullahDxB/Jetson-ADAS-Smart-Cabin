@@ -30,8 +30,8 @@ class Config:
     QUEUE_SIZE:    int = 2
 
     BROKER_HOST:     str = "broker.emqx.io"
-    BROKER_PORT:     int = 1883
-    MQTT_TOPIC:      str = "mnnit/dashboard/control"
+    BROKER_PORT:     int = #port here
+    MQTT_TOPIC:      str = "" #topic here
     MQTT_CLIENT_ID:  str = "jetson_tx2_vision_pub"
 
 
