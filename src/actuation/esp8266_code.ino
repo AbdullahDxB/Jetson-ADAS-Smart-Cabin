@@ -1,7 +1,4 @@
 
-  MQTT Broker : broker.emqx.io:1883  
-             
-  Topic       : mnnit/dashboard/control
 
  ================================================================================
   GPIO Pinout (NodeMCU D-pin -> GPIO mapping)
@@ -37,9 +34,9 @@ const char* WIFI_PASSWORD  = "PASSWORD";   // Password
 
 // Replace with IP if local, e.g. "192.168.1.104"
 const char* MQTT_BROKER    = "broker.emqx.io";
-const int   MQTT_PORT      = 1883;
+const int   MQTT_PORT      = ; //MQTT PORT HERE
 const char* MQTT_CLIENT_ID = "esp8266_actuator_node";
-const char* MQTT_TOPIC     = "mnnit/dashboard/control";
+const char* MQTT_TOPIC     = "MQTT_TOPIC HERE";
 
 
 #define PIN_BUZZER      D8   // GPIO5  — Active Buzzer
@@ -63,7 +60,7 @@ bool alarmActive = false;
 bool alarmPinState = false;
 int alarmPulseCount = 0;
 unsigned long alarmLastToggle = 0;
-const int ALARM_PULSE_MS = 300; // Duration of beep
+const int ALARM_PULSE_MS = 300; 
 
 // Indicator 
 enum IndState { IND_NONE, IND_LEFT_ACTIVE, IND_RIGHT_ACTIVE };
@@ -71,7 +68,7 @@ IndState currentIndState = IND_NONE;
 bool indPinState = false;
 int indPulseCount = 0;
 unsigned long indLastToggle = 0;
-const int IND_PULSE_MS = 400; // Duration blink
+const int IND_PULSE_MS = 400; 
 
 void actuatorsOff() {
   digitalWrite(PIN_BUZZER,     LOW);
@@ -93,7 +90,7 @@ void indicatorsOff() {
 }
 
 void onMqttMessage(char* topic, byte* payload, unsigned int length) {
-  // Convert byte array to null-terminated String for easy comparison
+  
   String msg;
   msg.reserve(length + 1);
   for (unsigned int i = 0; i < length; i++) {
@@ -111,7 +108,7 @@ void onMqttMessage(char* topic, byte* payload, unsigned int length) {
     alarmPinState = true;
     alarmPulseCount = 0;
     alarmLastToggle = millis();
-    // Alarm has highest priority: hard-stop indicator activity.
+    
     indicatorsOff();
     digitalWrite(PIN_BUZZER,  HIGH);
     digitalWrite(PIN_LED_RED, HIGH);
@@ -137,7 +134,7 @@ void onMqttMessage(char* topic, byte* payload, unsigned int length) {
     indPulseCount = 0;
     indLastToggle = millis();
     digitalWrite(PIN_LED_LEFT,  HIGH);
-    digitalWrite(PIN_LED_RIGHT, LOW); // Force other off
+    digitalWrite(PIN_LED_RIGHT, LOW); 
     Serial.println(F("  ACTION: Left Indicator ON (4 Blinks)"));
   }
   else if (msg == "IND_RIGHT") {
@@ -149,7 +146,7 @@ void onMqttMessage(char* topic, byte* payload, unsigned int length) {
     indPinState = true;
     indPulseCount = 0;
     indLastToggle = millis();
-    digitalWrite(PIN_LED_LEFT,  LOW); // Force other off
+    digitalWrite(PIN_LED_LEFT,  LOW); 
     digitalWrite(PIN_LED_RIGHT, HIGH);
     Serial.println(F("  ACTION: Right Indicator ON (4 Blinks)"));
   }
@@ -188,7 +185,7 @@ bool maintainWifi() {
   Serial.print(WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  // Blocking wait up to 6 s for this attempt only
+
   unsigned long deadline = millis() + 6000;
   while (WiFi.status() != WL_CONNECTED && millis() < deadline) {
     delay(250);
@@ -221,7 +218,7 @@ bool maintainMqtt() {
 
   if (mqttClient.connect(MQTT_CLIENT_ID)) {
     Serial.println(F("[MQTT] Connected [OK]"));
-    bool ok = mqttClient.subscribe(MQTT_TOPIC, 1);  // QoS 1
+    bool ok = mqttClient.subscribe(MQTT_TOPIC, 1);  
     Serial.print(F("[MQTT] Subscribed to "));
     Serial.print(MQTT_TOPIC);
     Serial.println(ok ? F(" [OK]") : F(" [X] (retry next cycle)"));
@@ -236,7 +233,7 @@ bool maintainMqtt() {
 // Setup
 void setup() {
   Serial.begin(115200);
-  delay(200);   // Allow USB-serial to enumerate on host
+  delay(200);   
   Serial.println(F("\n\n=== Driver Monitoring - ESP8266 Actuator Node ==="));
   Serial.print(F("Chip ID : "));
   Serial.println(ESP.getChipId(), HEX);
@@ -246,7 +243,7 @@ void setup() {
     PIN_BUZZER, PIN_LED_RED, PIN_LED_LEFT, PIN_LED_RIGHT, PIN_HEADLIGHTS
   };
   for (uint8_t pin : OUTPUT_PINS) {
-    digitalWrite(pin, LOW);   // Ensure LOW before enabling output drive
+    digitalWrite(pin, LOW);   
     pinMode(pin, OUTPUT);
   }
   Serial.println(F("[GPIO] All output pins initialised LOW"));
@@ -266,14 +263,14 @@ void setup() {
   // Start
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
-  WiFi.persistent(false);          // Avoid excessive flash write cycles
+  WiFi.persistent(false);          
 
   Serial.println(F("[SETUP] Complete - entering main loop."));
 }
 
 void loop() {
-  if (!maintainWifi())  return;   // No WiFi -> nothing else to do
-  if (!maintainMqtt())  return;   // No MQTT -> wait for reconnect
+  if (!maintainWifi())  return;  
+  if (!maintainMqtt())  return;   
 
   mqttClient.loop();
 
@@ -285,18 +282,18 @@ void loop() {
       alarmLastToggle = currentMillis;
 
       if (alarmPinState) {
-        // Currently ON -> Turn OFF
+       
         digitalWrite(PIN_BUZZER, LOW);
         digitalWrite(PIN_LED_RED, LOW);
         alarmPinState = false;
         alarmPulseCount++;
 
-        // Stop after 3 full ON/OFF cycles
+
         if (alarmPulseCount >= 3) {
           alarmActive = false;
         }
       } else {
-        // Currently OFF -> Turn ON
+        
         digitalWrite(PIN_BUZZER, HIGH);
         digitalWrite(PIN_LED_RED, HIGH);
         alarmPinState = true;
@@ -315,17 +312,17 @@ void loop() {
       uint8_t activePin = (currentIndState == IND_LEFT_ACTIVE) ? PIN_LED_LEFT : PIN_LED_RIGHT;
 
       if (indPinState) {
-        // Currently ON -> Turn OFF
+       
         digitalWrite(activePin, LOW);
         indPinState = false;
         indPulseCount++;
 
-        // Stop after 4 full ON/OFF cycles
+       
         if (indPulseCount >= 4) {
           currentIndState = IND_NONE;
         }
       } else {
-        // Currently OFF -> Turn ON
+        
         digitalWrite(activePin, HIGH);
         indPinState = true;
       }
