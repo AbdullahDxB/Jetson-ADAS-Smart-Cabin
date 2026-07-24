@@ -49,8 +49,8 @@ The system utilizes parallel perception pipelines to passively monitor driver fa
 
 ## Repository Files
 
-* **[`driver_monitor_gesture.py`](./src/perception/driver_monitor_gesture.py):** Main perception pipeline. Handles multithreaded frame capture, MediaPipe inference, DSP mathematics, and MQTT state publishing.
-* **[`esp8266_ecu_node.ino`](./src/actuation/esp8266_ecu_node.ino):** Embedded C++ firmware for the actuator node. Features a custom state-machine for non-blocking asynchronous hardware interrupts.
+* **[`driver_monitor.py`](./src/perception/driver_monitor.py):** Main perception pipeline. Handles multithreaded frame capture, MediaPipe inference, DSP mathematics, and MQTT state publishing.
+* **[`esp8266_code.ino`](./src/actuation/esp8266_code.ino):** Embedded C++ firmware for the actuator node. Features a custom state-machine for non-blocking asynchronous hardware interrupts.
 * **[`jetson_performance_data.csv`](./logs/jetson_performance_data.csv):** Raw 8,000-frame stress-test log of FPS and latency.
 * **[`run_demo.sh`](./run_demo.sh):** Automated deployment script for hardware and software initialization on JetPack OS.
 
@@ -73,7 +73,7 @@ The ESP8266 actuator node requires the following GPIO pin mapping.
 Follow these steps to deploy the system natively on an NVIDIA Jetson TX2 running JetPack OS.
 
 ### 1. Hardware Setup (MCU)
-1. Open [`esp8266_ecu_node.ino`](./src/actuation/esp8266_ecu_node.ino) in the Arduino IDE.
+1. Open [`esp8266_code.ino`](./src/actuation/esp8266_code.ino) in the Arduino IDE.
 2. Update `WIFI_SSID`, `WIFI_PASSWORD`, and verify the `MQTT_BROKER` IP.
 3. Compile and flash to the embedded board.
 
